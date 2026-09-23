@@ -1,6 +1,10 @@
 # DockKey
 
+[![Build and release](https://github.com/9dogs/dock-key/actions/workflows/build.yml/badge.svg)](https://github.com/9dogs/dock-key/actions/workflows/build.yml)
+
 A small native Apple Silicon macOS app that launches or focuses applications with keyboard shortcuts. Requires macOS 13 or later. Built in Swift using AppKit and SwiftUI; no third-party dependencies.
+
+DockKey takes inspiration from **Snap**, the app that switches between Dock applications using modifier + number shortcuts. DockKey is an independent implementation built natively for **Apple Silicon**.
 
 ![DockKey automatic shortcuts and settings](docs/screenshot.png)
 
@@ -13,7 +17,7 @@ A small native Apple Silicon macOS app that launches or focuses applications wit
 
 ## Install and use
 
-1. Build the app using the instructions below. Quit Snap or any other app using the same shortcuts.
+1. Download `DockKey-arm64.zip` from [Releases](https://github.com/9dogs/dock-key/releases), download a build from [Actions](https://github.com/9dogs/dock-key/actions/workflows/build.yml), or build the app using the instructions below. Unzip the download. Quit Snap or any other app using the same shortcuts.
 2. Copy the generated `DockKey.app` to Applications (or your personal Applications folder).
 3. Open DockKey. Option+1 opens the first pinned Dock app, Option+2 the second, and so on. Option+0 opens the tenth.
 4. Choose any combination of Control, Option, Shift and Command in Automatic settings.
@@ -56,3 +60,21 @@ cd dock-key
 ```
 
 `build.sh` creates an Apple Silicon application bundle and signs it locally. The source, tests and build scripts are included so the app can be maintained without an external package service.
+
+
+## Automatic builds and releases
+
+GitHub Actions builds and tests the app on a macOS runner on every push to `main`, pull request to `main`, and manual workflow run. Each successful run provides a **DockKey-arm64** artifact containing the app ZIP and its SHA-256 checksum; artifacts are retained for 30 days. Download the artifact from the run’s summary while signed in to GitHub, then extract the artifact and app ZIP.
+
+To publish a release, push a version tag:
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Tags must use `vMAJOR.MINOR.PATCH`. After tests, compilation, architecture verification and signature validation pass, the workflow publishes a GitHub Release with `DockKey-arm64.zip` and its checksum. The tag sets the app version; the workflow run number sets the build number. Re-running a tag workflow replaces that release’s build assets.
+
+Builds are **ad-hoc signed, not Developer ID signed or notarized**. Downloaded builds may trigger Gatekeeper; building locally is also supported. Developer ID signing and notarization would require an Apple Developer certificate and credentials, which are not configured here.
+
+For a local versioned build, use `APP_VERSION=1.2.3 BUILD_NUMBER=4 ./build.sh`.
